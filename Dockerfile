@@ -1,4 +1,4 @@
-#based on https://github.com/github-changelog-generator/docker-github-changelog-generator/blob/master/Dockerfile
+# based on https://github.com/github-changelog-generator/docker-github-changelog-generator/blob/master/Dockerfile
 
 FROM ruby:2.7.3-alpine3.13
 
@@ -13,13 +13,12 @@ WORKDIR /
 COPY Gemfile Gemfile
 COPY entrypoint.sh entrypoint.sh
 RUN apk add --no-cache \
+  linux-headers \
   --virtual .gem-installdeps \
   build-base=0.5-r2 \
   && gem install bundler --version 2.2.15 \
   && bundle config set --local system 'true' \
-  && rm Gemfile \
-  && rm -rf "$GEM_HOME"/cache \
-  && apk del .gem-installdeps
+  && bundle install 
 
 ENV SRC_PATH /usr/local/src/your-app
 RUN mkdir -p "${SRC_PATH}"
