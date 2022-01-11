@@ -1,6 +1,8 @@
+#based on https://github.com/github-changelog-generator/docker-github-changelog-generator/blob/master/Dockerfile
+
 FROM ruby:2.7.3-alpine3.13
 
-LABEL maintainer="ferrari.marco@gmail.com"
+LABEL maintainer="eike-hass@web.de"
 
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
@@ -9,14 +11,13 @@ RUN apk add --no-cache \
 
 WORKDIR /
 COPY Gemfile Gemfile
+COPY entrypoint.sh entrypoint.sh
 RUN apk add --no-cache \
   --virtual .gem-installdeps \
   build-base=0.5-r2 \
   && gem install bundler --version 2.2.15 \
   && bundle config set --local system 'true' \
-  && bundle install \
-  && gem uninstall bundler \
-  && rm Gemfile Gemfile.lock \
+  && rm Gemfile \
   && rm -rf "$GEM_HOME"/cache \
   && apk del .gem-installdeps
 
@@ -26,5 +27,5 @@ RUN mkdir -p "${SRC_PATH}"
 VOLUME [ "$SRC_PATH" ]
 WORKDIR $SRC_PATH
 
-ENTRYPOINT ["github_changelog_generator"]
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["--help"]
